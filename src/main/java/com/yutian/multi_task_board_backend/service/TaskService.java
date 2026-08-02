@@ -1,12 +1,18 @@
 package com.yutian.multi_task_board_backend.service;
 
+import com.yutian.multi_task_board_backend.entity.Task;
+import com.yutian.multi_task_board_backend.entity.TaskStatus;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Map;
 
-@Service
-public class TaskService {
+public interface TaskService {
+    List<Task> getAllTasks();
+    Task getTaskById(int theId);
+    Task createTask(Task theTask);
+    Task updateTask(int theId, Task theTask);
+    Task updateTaskStatus(int theId, TaskStatus status);
+    void deleteTaskById(int theId);
 
-    public String hello(){
-        return "Spring boot is running!";
-    }
+
 }

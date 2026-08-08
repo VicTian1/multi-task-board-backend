@@ -1,14 +1,7 @@
 package com.yutian.multi_task_board_backend;
 
-import com.yutian.multi_task_board_backend.entity.Task;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-
-
-import java.time.LocalDate;
-import java.util.List;
 
 
 @SpringBootApplication

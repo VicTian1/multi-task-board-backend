@@ -3,6 +3,7 @@ package com.yutian.multi_task_board_backend.dao;
 
 import com.yutian.multi_task_board_backend.entity.Role;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 
@@ -24,7 +25,7 @@ public class RoleDaoImpl implements RoleDao{
         Role result=null;
         try{
             result=theQuery.getSingleResult();
-        } catch(Exception e){
+        } catch(NoResultException e){
             result=null;
         }
         return result;

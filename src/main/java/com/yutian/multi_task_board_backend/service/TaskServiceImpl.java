@@ -9,16 +9,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class TaskServiceImpl implements TaskService{
 
     private final TaskRepository taskRepository;
+    private final LabelService labelService;
 
-
-    public TaskServiceImpl(TaskRepository theTaskRepository){
-        taskRepository=theTaskRepository;
+    public TaskServiceImpl(TaskRepository taskRepository,LabelService labelService){
+        this.taskRepository=taskRepository;
+        this.labelService=labelService;
 
     }
 
@@ -35,14 +35,47 @@ public class TaskServiceImpl implements TaskService{
 
     }
 
+    private Boolean validateLabel(Task theTask){
+
+        if(theTask.getLabel()==null || (labelService.existByType((theTask.getLabel())))){
+            return true;
+        }else{
+            throw new IllegalArgumentException("Label Type "+theTask.getLabel()+" does not exist");
+        }
+
+    }
+
+    private String trimToNull(String str){
+        if(str==null || str.trim().isEmpty()){
+            return null;
+        }
+        return str.trim();
+    }
+
+    private void preHandle(Task theTask) {
+        if(theTask.getTitle()!=null){
+            theTask.setTitle(theTask.getTitle().trim());
+        }
+
+        theTask.setDescription(trimToNull(theTask.getDescription()));
+        theTask.setLabel(trimToNull(theTask.getLabel()));
+        if(theTask.getLabel()!=null){
+            theTask.setLabel(theTask.getLabel().toLowerCase());
+        }
+    }
+
     @Override
     public Task createTask(Task theTask) {
+        preHandle(theTask);
+        validateLabel(theTask);
         theTask.setId(0);
         return taskRepository.save(theTask);
     }
 
     @Override
     public Task updateTask(int theId, Task theTask) {
+        preHandle(theTask);
+        validateLabel(theTask);
         getTaskById(theId);
         theTask.setId(theId);
         return taskRepository.save(theTask);
@@ -51,9 +84,6 @@ public class TaskServiceImpl implements TaskService{
     @Override
     public Task updateTaskStatus(int theId, TaskStatus status) {
         Task task=getTaskById(theId);
-        if(status==null ){
-            throw new IllegalArgumentException("Illegal argument: "+status);
-        }
         task.setStatus(status);
         return taskRepository.save(task);
 

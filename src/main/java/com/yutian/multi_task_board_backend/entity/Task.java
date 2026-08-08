@@ -2,6 +2,10 @@ package com.yutian.multi_task_board_backend.entity;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
@@ -15,20 +19,26 @@ public class Task {
     @Column(name="id")
     private int id;
 
+
     @Column(name="title")
+    @NotBlank(message="Titile cannot be empty")
+    @Size(max=100, message="Title cannot exceed 100 characters")
     private String title;
 
     @Column(name="description")
+    @Size(max=500, message="Description cannot exceed 500 characters")
     private String description;
 
     @Column(name="label")
     private String label;
 
     @Column(name="due_date")
+    @FutureOrPresent(message="Due date must be today or in the future")
     private LocalDate dueDate;
 
     @Column(name="status")
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Status cannot be null")
     private TaskStatus status;
 
     // define constructors

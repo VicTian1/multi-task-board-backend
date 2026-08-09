@@ -2,11 +2,14 @@ package com.yutian.multi_task_board_backend.service;
 
 
 import com.yutian.multi_task_board_backend.dao.TaskRepository;
+import com.yutian.multi_task_board_backend.dto.TaskCreateRequest;
+import com.yutian.multi_task_board_backend.dto.TaskUpdateRequest;
 import com.yutian.multi_task_board_backend.entity.Task;
 import com.yutian.multi_task_board_backend.entity.TaskStatus;
 import com.yutian.multi_task_board_backend.exception.TaskNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,7 +68,13 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public Task createTask(Task theTask) {
+    public Task createTask(TaskCreateRequest theTaskCreateRequest) {
+        Task theTask = new Task();
+        theTask.setTitle(theTaskCreateRequest.getTitle());
+        theTask.setDescription(theTaskCreateRequest.getDescription());
+        theTask.setLabel(theTaskCreateRequest.getLabel());
+        theTask.setStatus(theTaskCreateRequest.getStatus());
+        theTask.setDueDate(theTaskCreateRequest.getDueDate());
         preHandle(theTask);
         validateLabel(theTask);
         theTask.setId(0);
@@ -73,10 +82,23 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public Task updateTask(int theId, Task theTask) {
+    public Task updateTask(int theId, TaskUpdateRequest theTaskUpdateRequest) {
+        Task tempTask=getTaskById(theId);
+
+        if(theTaskUpdateRequest.getDueDate()!=null && !theTaskUpdateRequest.getDueDate().equals(tempTask.getDueDate())) {
+            if(theTaskUpdateRequest.getDueDate().isBefore(LocalDate.now())){
+                throw new IllegalArgumentException("Due date must be today or in the future");
+            }
+        }
+
+        Task theTask=new Task();
+        theTask.setTitle(theTaskUpdateRequest.getTitle());
+        theTask.setDescription(theTaskUpdateRequest.getDescription());
+        theTask.setLabel(theTaskUpdateRequest.getLabel());
+        theTask.setDueDate(theTaskUpdateRequest.getDueDate());
+        theTask.setStatus(theTaskUpdateRequest.getStatus());
         preHandle(theTask);
         validateLabel(theTask);
-        getTaskById(theId);
         theTask.setId(theId);
         return taskRepository.save(theTask);
     }

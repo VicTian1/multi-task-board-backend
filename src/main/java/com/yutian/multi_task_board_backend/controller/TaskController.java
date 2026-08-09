@@ -1,6 +1,8 @@
 package com.yutian.multi_task_board_backend.controller;
 
 
+import com.yutian.multi_task_board_backend.dto.TaskCreateRequest;
+import com.yutian.multi_task_board_backend.dto.TaskUpdateRequest;
 import com.yutian.multi_task_board_backend.dto.UpdateStatusRequest;
 import com.yutian.multi_task_board_backend.entity.Task;
 import com.yutian.multi_task_board_backend.service.TaskService;
@@ -36,13 +38,13 @@ public class TaskController {
     }
 
     @PostMapping("/tasks")
-    public Task createTask(@Valid @RequestBody Task theTask){
-        return taskService.createTask(theTask);
+    public Task createTask(@Valid @RequestBody TaskCreateRequest theTaskCreateRequest){
+        return taskService.createTask(theTaskCreateRequest);
     }
 
     @PutMapping("/tasks/{taskId}")
-    public Task updateTask(@Min(value=1,message="Id must be a positive integer") @PathVariable int taskId, @Valid @RequestBody Task theTask){
-        return taskService.updateTask(taskId,theTask);
+    public Task updateTask(@Min(value=1,message="Id must be a positive integer") @PathVariable int taskId, @Valid @RequestBody TaskUpdateRequest theTaskUpdateRequest){
+        return taskService.updateTask(taskId,theTaskUpdateRequest);
     }
 
     @PatchMapping("/tasks/{taskId}/status")

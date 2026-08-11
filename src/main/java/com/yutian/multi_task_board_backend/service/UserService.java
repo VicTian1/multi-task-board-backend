@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService extends UserDetailsService {
 
-    User findByUserName(String userName);
-
+    User findByUsername(String username);
+    Boolean existsByUsername(String username);
+    User createUser(User user);
 }

@@ -6,6 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -80,6 +84,59 @@ public class TaskRestExceptionHandler {
 
 
     }
+
+    @ExceptionHandler
+    public ResponseEntity<TaskErrorResponse> handleException(UserNotFoundException exc){
+        TaskErrorResponse error = new TaskErrorResponse();
+
+        error.setStatus(HttpStatus.NOT_FOUND.value());
+        error.setMessage(exc.getMessage());
+        error.setTimestamp(System.currentTimeMillis());
+
+        return new ResponseEntity<>(error,HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<TaskErrorResponse> handleException(RoleNotFoundException exc){
+        TaskErrorResponse error = new TaskErrorResponse();
+
+        error.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        error.setMessage(exc.getMessage());
+        error.setTimestamp(System.currentTimeMillis());
+
+        return new ResponseEntity<>(error,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<TaskErrorResponse> handleException(UserAlreadyExistsException exc) {
+        TaskErrorResponse error = new TaskErrorResponse();
+
+        error.setStatus(HttpStatus.CONFLICT.value());
+        error.setMessage(exc.getMessage());
+        error.setTimestamp(System.currentTimeMillis());
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<TaskErrorResponse> handleException(AuthenticationException exc) {
+        log.warn("Authentication failed: {}", exc.getMessage());
+        TaskErrorResponse error = new TaskErrorResponse();
+        error.setStatus(HttpStatus.UNAUTHORIZED.value());
+        error.setMessage("Invalid username or password");
+        error.setTimestamp(System.currentTimeMillis());
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+    @ExceptionHandler
+    public ResponseEntity<TaskErrorResponse> handleException(DisabledException exc) {
+
+        TaskErrorResponse error = new TaskErrorResponse();
+        error.setStatus(HttpStatus.FORBIDDEN.value());
+        error.setMessage("Your count has been disabled,Please contact the administrator.");
+        error.setTimestamp(System.currentTimeMillis());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
 
 
     @ExceptionHandler

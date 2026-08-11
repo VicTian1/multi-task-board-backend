@@ -15,7 +15,7 @@ public class User {
     private Long id;
 
     @Column(name="username")
-    private String userName;
+    private String username;
 
     @Column(name="password")
     private String password;
@@ -34,13 +34,13 @@ public class User {
     }
 
     public User(String userName, String password, boolean enabled) {
-        this.userName = userName;
+        this.username = userName;
         this.password = password;
         this.enabled = enabled;
     }
 
     public User(String userName, String password, boolean enabled, Collection<Role> roles) {
-        this.userName = userName;
+        this.username = userName;
         this.password = password;
         this.enabled = enabled;
         this.roles = roles;
@@ -54,12 +54,12 @@ public class User {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String userName) {
+        this.username = userName;
     }
 
     public String getPassword() {
@@ -90,7 +90,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", userName='" + userName + '\'' +
+                ", userName='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", enabled=" + enabled +
                 ", roles=" + roles +

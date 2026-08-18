@@ -6,6 +6,8 @@ import com.yutian.multi_task_board_backend.dto.TaskUpdateRequest;
 import com.yutian.multi_task_board_backend.dto.UpdateStatusRequest;
 import com.yutian.multi_task_board_backend.entity.Task;
 import com.yutian.multi_task_board_backend.service.TaskService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,34 +30,34 @@ public class TaskController {
     }
 
     @GetMapping("/tasks")
-    public List<Task> getAllTasks(){
-        return taskService.getAllTasks();
+    public List<Task> getAllTasks(HttpServletRequest request){
+        return taskService.getAllTasks((Integer)request.getAttribute("userId"));
     }
 
     @GetMapping("/tasks/{taskId}")
-    public Task getTask(@Min(value=1,message="Id must be a positive integer") @PathVariable int taskId){
-        return taskService.getTaskById(taskId);
+    public Task getTask(@Min(value=1,message="Id must be a positive integer") @PathVariable int taskId, HttpServletRequest request){
+        return taskService.getTaskById(taskId,(Integer)request.getAttribute("userId"));
     }
 
     @PostMapping("/tasks")
-    public Task createTask(@Valid @RequestBody TaskCreateRequest theTaskCreateRequest){
-        return taskService.createTask(theTaskCreateRequest);
+    public Task createTask(@Valid @RequestBody TaskCreateRequest theTaskCreateRequest,HttpServletRequest request){
+        return taskService.createTask(theTaskCreateRequest,(Integer)request.getAttribute("userId"));
     }
 
     @PutMapping("/tasks/{taskId}")
-    public Task updateTask(@Min(value=1,message="Id must be a positive integer") @PathVariable int taskId, @Valid @RequestBody TaskUpdateRequest theTaskUpdateRequest){
-        return taskService.updateTask(taskId,theTaskUpdateRequest);
+    public Task updateTask(@Min(value=1,message="Id must be a positive integer") @PathVariable int taskId, HttpServletRequest request,@Valid @RequestBody TaskUpdateRequest theTaskUpdateRequest){
+        return taskService.updateTask(taskId,(Integer)request.getAttribute("userId"),theTaskUpdateRequest);
     }
 
     @PatchMapping("/tasks/{taskId}/status")
-    public Task updateTaskStatus(@Min(value=1,message="Id must be a positive integer") @PathVariable int taskId, @Valid @RequestBody UpdateStatusRequest request){
-        return taskService.updateTaskStatus(taskId,request.getStatus());
+    public Task updateTaskStatus(@Min(value=1,message="Id must be a positive integer") @PathVariable int taskId, HttpServletRequest request,@Valid @RequestBody UpdateStatusRequest statusRequest){
+        return taskService.updateTaskStatus(taskId,(Integer)request.getAttribute("userId"),statusRequest.getStatus());
     }
 
     @DeleteMapping("/tasks/{taskId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTask(@Min(value=1,message="Id must be a positive integer") @PathVariable int taskId){
-        taskService.deleteTaskById(taskId);
+    public void deleteTask(@Min(value=1,message="Id must be a positive integer") @PathVariable int taskId,HttpServletRequest request){
+        taskService.deleteTaskById(taskId,(Integer)request.getAttribute("userId"));
     }
 
 

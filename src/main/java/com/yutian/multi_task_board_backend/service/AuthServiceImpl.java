@@ -59,14 +59,15 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public JwtResponse login(UserLoginRequest userLoginRequest) {
+
         UsernamePasswordAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(
                 userLoginRequest.getUsername(),
                 userLoginRequest.getPassword()
         );
-
         Authentication authentication=authenticationManager.authenticate(authenticationToken);
+        User user=userService.findByUsername(userLoginRequest.getUsername());
         UserDetails userDetails=(UserDetails) authentication.getPrincipal();
-        String jwtToken=jwtUtils.generateJwtToken(userDetails);
+        String jwtToken=jwtUtils.generateJwtToken(userDetails,user.getId());
         return new JwtResponse(jwtToken);
 
     }

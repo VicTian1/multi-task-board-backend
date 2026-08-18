@@ -8,12 +8,12 @@ import com.yutian.multi_task_board_backend.entity.TaskStatus;
 import java.util.List;
 
 public interface TaskService {
-    List<Task> getAllTasks();
-    Task getTaskById(int theId);
-    Task createTask(TaskCreateRequest theTaskCreateRequest);
-    Task updateTask(int theId, TaskUpdateRequest theTaskUpdateRequest);
-    Task updateTaskStatus(int theId, TaskStatus status);
-    void deleteTaskById(int theId);
+    List<Task> getAllTasks(int userId);
+    Task getTaskById(int theId,int userId);
+    Task createTask(TaskCreateRequest theTaskCreateRequest,int userId);
+    Task updateTask(int theId, int userId,TaskUpdateRequest theTaskUpdateRequest);
+    Task updateTaskStatus(int theId, int userId,TaskStatus status);
+    void deleteTaskById(int theId,int userId);
 
 
 }

@@ -40,11 +40,5 @@ public class UserRegisterRequest {
         this.password = password;
     }
 
-    @Override
-    public String toString() {
-        return "UserCreateRequest{" +
-                "username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                '}';
-    }
+
 }

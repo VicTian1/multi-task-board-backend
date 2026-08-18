@@ -27,16 +27,18 @@ public class TaskServiceImpl implements TaskService{
 
 
     @Override
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public List<Task> getAllTasks(int userId) {
+        return taskRepository.findByUserId(userId);
     }
 
     @Override
-    public Task getTaskById(int theId) {
-        Optional<Task> result = taskRepository.findById(theId);
+    public Task getTaskById(int theId,int userId) {
+        Optional<Task> result = taskRepository.findByIdAndUserId(theId,userId);
         return result.orElseThrow(()-> new TaskNotFoundException("Task id not found-"+theId));
 
     }
+
+
 
     private Boolean validateLabel(Task theTask){
 
@@ -68,7 +70,7 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public Task createTask(TaskCreateRequest theTaskCreateRequest) {
+    public Task createTask(TaskCreateRequest theTaskCreateRequest,int userId) {
         Task theTask = new Task();
         theTask.setTitle(theTaskCreateRequest.getTitle());
         theTask.setDescription(theTaskCreateRequest.getDescription());
@@ -77,13 +79,14 @@ public class TaskServiceImpl implements TaskService{
         theTask.setDueDate(theTaskCreateRequest.getDueDate());
         preHandle(theTask);
         validateLabel(theTask);
+        theTask.setUserId(userId);
         theTask.setId(0);
         return taskRepository.save(theTask);
     }
 
     @Override
-    public Task updateTask(int theId, TaskUpdateRequest theTaskUpdateRequest) {
-        Task tempTask=getTaskById(theId);
+    public Task updateTask(int theId,int userId,TaskUpdateRequest theTaskUpdateRequest) {
+        Task tempTask=getTaskById(theId,userId);
 
         if(theTaskUpdateRequest.getDueDate()!=null && !theTaskUpdateRequest.getDueDate().equals(tempTask.getDueDate())) {
             if(theTaskUpdateRequest.getDueDate().isBefore(LocalDate.now())){
@@ -99,21 +102,22 @@ public class TaskServiceImpl implements TaskService{
         theTask.setStatus(theTaskUpdateRequest.getStatus());
         preHandle(theTask);
         validateLabel(theTask);
+        theTask.setUserId(userId);
         theTask.setId(theId);
         return taskRepository.save(theTask);
     }
 
     @Override
-    public Task updateTaskStatus(int theId, TaskStatus status) {
-        Task task=getTaskById(theId);
+    public Task updateTaskStatus(int theId, int userId,TaskStatus status) {
+        Task task=getTaskById(theId,userId);
         task.setStatus(status);
         return taskRepository.save(task);
 
     }
 
     @Override
-    public void deleteTaskById(int theId) {
-        Task task=getTaskById(theId);
+    public void deleteTaskById(int theId,int userId) {
+        Task task=getTaskById(theId,userId);
         taskRepository.delete(task);
 
     }

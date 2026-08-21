@@ -3,6 +3,7 @@ package com.yutian.multi_task_board_backend.controller;
 
 import com.yutian.multi_task_board_backend.dto.TaskCreateRequest;
 import com.yutian.multi_task_board_backend.dto.TaskUpdateRequest;
+import com.yutian.multi_task_board_backend.dto.UpdateMoveRequest;
 import com.yutian.multi_task_board_backend.dto.UpdateStatusRequest;
 import com.yutian.multi_task_board_backend.entity.Task;
 import com.yutian.multi_task_board_backend.service.TaskService;
@@ -52,6 +53,11 @@ public class TaskController {
     @PatchMapping("/tasks/{taskId}/status")
     public Task updateTaskStatus(@Min(value=1,message="Id must be a positive integer") @PathVariable int taskId, HttpServletRequest request,@Valid @RequestBody UpdateStatusRequest statusRequest){
         return taskService.updateTaskStatus(taskId,(Integer)request.getAttribute("userId"),statusRequest.getStatus());
+    }
+
+    @PatchMapping("/tasks/{taskId}/move")
+    public Task updateTaskMove(@Min(value=1,message="Id must be a positive integer") @PathVariable int taskId, HttpServletRequest request,@Valid @RequestBody UpdateMoveRequest moveRequest){
+        return taskService.updateTaskStatusAndIndex(taskId,(Integer)request.getAttribute("userId"),moveRequest);
     }
 
     @DeleteMapping("/tasks/{taskId}")

@@ -39,19 +39,23 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
+    @Column(name="`index`")
+    private int index;
+
     // define constructors
     public Task(){
 
     }
 
 
-    public Task(int userId, String title, String description, String label, LocalDate dueDate, TaskStatus status) {
+    public Task(int userId, String title, String description, String label, LocalDate dueDate, TaskStatus status, int index) {
         this.userId = userId;
         this.title = title;
         this.description = description;
         this.label = label;
         this.dueDate = dueDate;
         this.status = status;
+        this.index = index;
     }
 
     public int getId() {
@@ -110,6 +114,14 @@ public class Task {
         this.status = status;
     }
 
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     @Override
     public String toString() {
         return "Task{" +
@@ -120,6 +132,7 @@ public class Task {
                 ", label='" + label + '\'' +
                 ", dueDate=" + dueDate +
                 ", status=" + status +
+                ", index=" + index +
                 '}';
     }
 }

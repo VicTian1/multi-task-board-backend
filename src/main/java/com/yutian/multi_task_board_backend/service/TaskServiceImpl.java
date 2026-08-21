@@ -4,10 +4,12 @@ package com.yutian.multi_task_board_backend.service;
 import com.yutian.multi_task_board_backend.dao.TaskRepository;
 import com.yutian.multi_task_board_backend.dto.TaskCreateRequest;
 import com.yutian.multi_task_board_backend.dto.TaskUpdateRequest;
+import com.yutian.multi_task_board_backend.dto.UpdateMoveRequest;
 import com.yutian.multi_task_board_backend.entity.Task;
 import com.yutian.multi_task_board_backend.entity.TaskStatus;
 import com.yutian.multi_task_board_backend.exception.TaskNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,7 +30,7 @@ public class TaskServiceImpl implements TaskService{
 
     @Override
     public List<Task> getAllTasks(int userId) {
-        return taskRepository.findByUserId(userId);
+        return taskRepository.findByUserIdOrderByStatusAscIndexAsc(userId);
     }
 
     @Override
@@ -69,6 +71,12 @@ public class TaskServiceImpl implements TaskService{
         }
     }
 
+    private int getMaxIndex(int userId, TaskStatus status){
+        return taskRepository.findFirstByUserIdAndStatusOrderByIndexDesc(userId,status)
+                .map(Task::getIndex)
+                .orElse(-1);
+    }
+
     @Override
     public Task createTask(TaskCreateRequest theTaskCreateRequest,int userId) {
         Task theTask = new Task();
@@ -81,6 +89,7 @@ public class TaskServiceImpl implements TaskService{
         validateLabel(theTask);
         theTask.setUserId(userId);
         theTask.setId(0);
+        theTask.setIndex(getMaxIndex(userId,theTask.getStatus())+1);
         return taskRepository.save(theTask);
     }
 
@@ -104,21 +113,66 @@ public class TaskServiceImpl implements TaskService{
         validateLabel(theTask);
         theTask.setUserId(userId);
         theTask.setId(theId);
+        theTask.setIndex(tempTask.getIndex());
         return taskRepository.save(theTask);
     }
 
     @Override
+    @Transactional
     public Task updateTaskStatus(int theId, int userId,TaskStatus status) {
+        UpdateMoveRequest moveRequest=new UpdateMoveRequest();
+        moveRequest.setIndex(getMaxIndex(userId,status)+1);
+        moveRequest.setStatus(status);
+        return updateTaskStatusAndIndex(theId,userId,moveRequest);
+
+    }
+
+
+    private void reindexColumn(List<Task> tasks){
+
+        for(int i=0;i< tasks.size();i++){
+            tasks.get(i).setIndex(i);
+        }
+        taskRepository.saveAll(tasks);
+    }
+
+    @Override
+    @Transactional
+    public void deleteTaskById(int theId,int userId) {
         Task task=getTaskById(theId,userId);
-        task.setStatus(status);
-        return taskRepository.save(task);
+        List<Task> tasks=taskRepository.findByUserIdAndStatusOrderByIndexAsc(userId,task.getStatus());
+        tasks.removeIf(t->t.getId()==theId);
+        taskRepository.delete(task);
+        reindexColumn(tasks);
 
     }
 
     @Override
-    public void deleteTaskById(int theId,int userId) {
+    @Transactional
+    public Task updateTaskStatusAndIndex(int theId, int userId, UpdateMoveRequest moveRequest) {
         Task task=getTaskById(theId,userId);
-        taskRepository.delete(task);
+        TaskStatus oldStatus=task.getStatus();
+        TaskStatus newStatus=(moveRequest.getStatus()==null)? oldStatus:moveRequest.getStatus();
+        int newIndex=moveRequest.getIndex();
+        List<Task> oldList=taskRepository.findByUserIdAndStatusOrderByIndexAsc(userId,oldStatus);
+        oldList.removeIf(t->t.getId()==theId);
+
+        if(newStatus.equals(oldStatus)){
+            if(newIndex<0) newIndex=0;
+            if(newIndex>oldList.size()) newIndex=oldList.size();
+            oldList.add(newIndex,task);
+            reindexColumn(oldList);
+            return task;
+        }else{
+            List<Task> targetList=taskRepository.findByUserIdAndStatusOrderByIndexAsc(userId,newStatus);
+            if(newIndex<0) newIndex=0;
+            if(newIndex>targetList.size()) newIndex=targetList.size();
+            task.setStatus(newStatus);
+            targetList.add(newIndex,task);
+            reindexColumn(oldList);
+            reindexColumn(targetList);
+            return task;
+        }
 
     }
 }
